@@ -194,7 +194,7 @@ public class ZLG600ASerialPort implements PWSerialPortListener {
             if (!ZLG600ATools.checkFrame(data)) {
                 return;
             }
-            PWLogger.d("ZLG600A Send:" + ByteUtils.bytes2HexString(data, true, ", "));
+            PWLogger.d("ZLG600A Recv:" + ByteUtils.bytes2HexString(data, true, ", "));
             this.parseRFIDPackage();
             this.handler.sendEmptyMessageDelayed(1, 1000);
         }
