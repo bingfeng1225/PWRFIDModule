@@ -1,4 +1,4 @@
-package cn.haier.bio.mediacal.rfid.zlg600a.tools;
+package cn.haier.bio.medical.rfid.tools;
 
 import cn.qd.peiwen.pwlogger.PWLogger;
 import cn.qd.peiwen.pwtools.ByteUtils;

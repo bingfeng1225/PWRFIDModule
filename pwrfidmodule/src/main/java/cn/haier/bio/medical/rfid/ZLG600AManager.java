@@ -1,4 +1,4 @@
-package cn.haier.bio.mediacal.rfid.zlg600a;
+package cn.haier.bio.medical.rfid;
 
 import cn.qd.peiwen.pwtools.EmptyUtils;
 

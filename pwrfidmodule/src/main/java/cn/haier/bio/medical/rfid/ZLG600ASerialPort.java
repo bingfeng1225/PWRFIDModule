@@ -1,4 +1,4 @@
-package cn.haier.bio.mediacal.rfid.zlg600a;
+package cn.haier.bio.medical.rfid;
 
 import android.os.Build;
 import android.os.Handler;
@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.nio.ByteOrder;
 
-import cn.haier.bio.mediacal.rfid.zlg600a.tools.ZLG600ATools;
+import cn.haier.bio.medical.rfid.tools.ZLG600ATools;
 import cn.qd.peiwen.pwlogger.PWLogger;
 import cn.qd.peiwen.pwtools.ByteUtils;
 import cn.qd.peiwen.pwtools.EmptyUtils;
