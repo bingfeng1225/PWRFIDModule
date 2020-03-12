@@ -1,2 +1,1 @@
 include ':app', ':pwrfidmodule'
-rootProject.name='PWRFIDModule'
