@@ -11,10 +11,6 @@ public class ZLG600ATools {
     public static final int RFID_COMMAND_READ = 1;
     public static final int RFID_COMMAND_RESET = 2;
 
-    private static final String RFID_RESET_ON = "1";
-    private static final String RFID_RESET_OFF = "0";
-    private static final String RFID_RESET_PATH = "/sys/kernel/finger_set/nfc_value";
-
     public static boolean checkFrame(byte[] data) {
         if (data[0] < 0x06) {
             return false;
