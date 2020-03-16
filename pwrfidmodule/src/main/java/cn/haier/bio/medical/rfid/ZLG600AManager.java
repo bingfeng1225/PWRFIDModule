@@ -50,9 +50,9 @@ public class ZLG600AManager {
         }
     }
 
-    public void changedListener(IZLG600AListener listener) {
+    public void changeListener(IZLG600AListener listener) {
         if(EmptyUtils.isNotEmpty(this.serialPort)){
-            this.serialPort.changedListener(listener);
+            this.serialPort.changeListener(listener);
         }
     }
 }

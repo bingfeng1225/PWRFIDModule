@@ -61,7 +61,7 @@ public class ZLG600ASerialPort implements PWSerialPortListener {
         this.destoryBuffer();
     }
 
-    public void changedListener(IZLG600AListener listener) {
+    public void changeListener(IZLG600AListener listener) {
         this.listener = new WeakReference<>(listener);
     }
 
