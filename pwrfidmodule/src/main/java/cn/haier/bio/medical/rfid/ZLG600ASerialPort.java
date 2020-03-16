@@ -28,17 +28,16 @@ public class ZLG600ASerialPort implements PWSerialPortListener {
     private int times = 0;
     private boolean ready = false;
     private boolean enabled = false;
-    private WeakReference<ZLG600AListener> listener;
+    private WeakReference<IZLG600AListener> listener;
 
     public ZLG600ASerialPort() {
 
     }
 
-    public void init(ZLG600AListener listener) {
+    public void init(String path) {
         this.createHandler();
-        this.createHelper();
+        this.createHelper(path);
         this.createBuffer();
-        this.listener = new WeakReference<>(listener);
     }
 
     public void enable() {
@@ -62,6 +61,10 @@ public class ZLG600ASerialPort implements PWSerialPortListener {
         this.destoryBuffer();
     }
 
+    public void changedListener(IZLG600AListener listener) {
+        this.listener = new WeakReference<>(listener);
+    }
+
     private boolean isInitialized() {
         if (EmptyUtils.isEmpty(this.handler)) {
             return false;
@@ -75,15 +78,11 @@ public class ZLG600ASerialPort implements PWSerialPortListener {
         return true;
     }
 
-    private void createHelper() {
+    private void createHelper(String path) {
         if (EmptyUtils.isEmpty(this.helper)) {
             this.helper = new PWSerialPortHelper("ZLG600ASerialPort");
             this.helper.setTimeout(2);
-            if ("magton".equals(Build.MODEL)) {
-                this.helper.setPath("/dev/ttyS5");
-            } else {
-                this.helper.setPath("/dev/ttyS1");
-            }
+            this.helper.setPath(path);
             this.helper.setBaudrate(115200);
             this.helper.init(this);
         }

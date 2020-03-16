@@ -24,10 +24,10 @@ public class ZLG600AManager {
 
     }
 
-    public void init(ZLG600AListener listener) {
+    public void init(String path) {
         if(EmptyUtils.isEmpty(this.serialPort)){
             this.serialPort = new ZLG600ASerialPort();
-            this.serialPort.init(listener);
+            this.serialPort.init(path);
         }
     }
 
@@ -47,6 +47,12 @@ public class ZLG600AManager {
         if(EmptyUtils.isNotEmpty(this.serialPort)){
             this.serialPort.release();
             this.serialPort = null;
+        }
+    }
+
+    public void changedListener(IZLG600AListener listener) {
+        if(EmptyUtils.isNotEmpty(this.serialPort)){
+            this.serialPort.changedListener(listener);
         }
     }
 }

@@ -1,6 +1,6 @@
 package cn.haier.bio.medical.rfid;
 
-public interface ZLG600AListener {
+public interface IZLG600AListener {
     void onZLG600AReady();
     void onZLG600AConnected();
     void onZLG600AException();
