@@ -26,15 +26,6 @@ public class ZLG600ATools {
         return (check == data[data.length - 2]);
     }
 
-    public static void resetRFIDReader() {
-        PWLogger.d("RFID Reader OFF");
-        PWSerialPort.writeFile(RFID_RESET_PATH, RFID_RESET_OFF);
-        ThreadUtils.sleep(200);
-        PWSerialPort.writeFile(RFID_RESET_PATH, RFID_RESET_ON);
-        ThreadUtils.sleep(200);
-        PWLogger.d("RFID Reader  ON");
-    }
-
     public static byte[] packageCommand(int type) {
         switch (type) {
             case RFID_COMMAND_READ:

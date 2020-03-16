@@ -155,8 +155,9 @@ public class ZLG600ASerialPort implements PWSerialPortListener {
         if (EmptyUtils.isNotEmpty(this.listener)) {
             this.listener.get().onZLG600AException();
         }
-        if (this.enabled && !"magton".equals(Build.MODEL)) {
-            ZLG600ATools.resetRFIDReader();
+
+        if(this.enabled && EmptyUtils.isNotEmpty(this.listener)){
+            this.listener.get().onZLG600AReset();
         }
     }
 
