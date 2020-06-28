@@ -147,6 +147,9 @@ class ZLG600ASerialPort implements PWSerialPortListener {
 
     @Override
     public void onReadThreadReleased(PWSerialPortHelper helper) {
+        if (!this.isInitialized() || !helper.equals(this.helper)) {
+            return;
+        }
         if (null != this.listener && null != this.listener.get()) {
             this.listener.get().onZLG600APrint("ZLG600ASerialPort read thread released");
         }
@@ -170,6 +173,9 @@ class ZLG600ASerialPort implements PWSerialPortListener {
 
     @Override
     public void onStateChanged(PWSerialPortHelper helper, PWSerialPortState state) {
+        if (!this.isInitialized() || !helper.equals(this.helper)) {
+            return;
+        }
         if (null != this.listener && null != this.listener.get()) {
             this.listener.get().onZLG600APrint("ZLG600ASerialPort state changed: " + state.name());
         }
