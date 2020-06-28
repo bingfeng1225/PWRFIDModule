@@ -1,6 +1,5 @@
 package cn.haier.bio.medical.rfid;
 
-import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -10,16 +9,13 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.nio.ByteOrder;
 
-import cn.haier.bio.medical.rfid.tools.ZLG600ATools;
-import cn.qd.peiwen.pwlogger.PWLogger;
-import cn.qd.peiwen.pwtools.ByteUtils;
-import cn.qd.peiwen.pwtools.EmptyUtils;
 import cn.qd.peiwen.serialport.PWSerialPortHelper;
 import cn.qd.peiwen.serialport.PWSerialPortListener;
+import cn.qd.peiwen.serialport.PWSerialPortState;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
-public class ZLG600ASerialPort implements PWSerialPortListener {
+class ZLG600ASerialPort implements PWSerialPortListener {
     private ByteBuf buffer;
     private RFIDHandler handler;
     private HandlerThread thread;
@@ -66,20 +62,20 @@ public class ZLG600ASerialPort implements PWSerialPortListener {
     }
 
     private boolean isInitialized() {
-        if (EmptyUtils.isEmpty(this.handler)) {
+        if (this.handler == null) {
             return false;
         }
-        if (EmptyUtils.isEmpty(this.helper)) {
+        if (this.helper == null) {
             return false;
         }
-        if (EmptyUtils.isEmpty(this.buffer)) {
+        if (this.buffer == null) {
             return false;
         }
         return true;
     }
 
     private void createHelper(String path) {
-        if (EmptyUtils.isEmpty(this.helper)) {
+        if (this.helper == null) {
             this.helper = new PWSerialPortHelper("ZLG600ASerialPort");
             this.helper.setTimeout(2);
             this.helper.setPath(path);
@@ -89,14 +85,14 @@ public class ZLG600ASerialPort implements PWSerialPortListener {
     }
 
     private void destoryHelper() {
-        if (EmptyUtils.isNotEmpty(this.helper)) {
+        if (null != this.helper) {
             this.helper.release();
             this.helper = null;
         }
     }
 
     private void createHandler() {
-        if (EmptyUtils.isEmpty(this.thread) && EmptyUtils.isEmpty(this.handler)) {
+        if (this.thread == null && this.handler == null) {
             this.thread = new HandlerThread("ZLG600ASerialPort");
             this.thread.start();
             this.handler = new RFIDHandler(this.thread.getLooper());
@@ -104,7 +100,7 @@ public class ZLG600ASerialPort implements PWSerialPortListener {
     }
 
     private void destoryHandler() {
-        if (EmptyUtils.isNotEmpty(this.thread)) {
+        if (null != this.thread) {
             this.thread.quitSafely();
             this.thread = null;
             this.handler = null;
@@ -112,13 +108,13 @@ public class ZLG600ASerialPort implements PWSerialPortListener {
     }
 
     private void createBuffer() {
-        if (EmptyUtils.isEmpty(this.buffer)) {
+        if (this.buffer == null) {
             this.buffer = Unpooled.buffer(4);
         }
     }
 
     private void destoryBuffer() {
-        if (EmptyUtils.isNotEmpty(this.buffer)) {
+        if (null != this.buffer) {
             this.buffer.release();
             this.buffer = null;
         }
@@ -126,9 +122,12 @@ public class ZLG600ASerialPort implements PWSerialPortListener {
 
     private void write(int type) {
         byte[] data = ZLG600ATools.packageCommand(type);
-        PWLogger.d("ZLG600A Send:" + ByteUtils.bytes2HexString(data, true, ", "));
-        if (this.isInitialized() && this.enabled) {
-            this.helper.write(data);
+        if (!this.isInitialized() || !this.enabled) {
+            return;
+        }
+        this.helper.write(data);
+        if (null != this.listener && null != this.listener.get()) {
+            this.listener.get().onZLG600APrint("ZLG600ASerialPort Send:" + ZLG600ATools.bytes2HexString(data, true, ", "));
         }
     }
 
@@ -141,23 +140,38 @@ public class ZLG600ASerialPort implements PWSerialPortListener {
         this.ready = false;
         this.buffer.clear();
         this.handler.sendEmptyMessage(0);
-        if(EmptyUtils.isNotEmpty(this.listener)){
+        if (null != this.listener && null != this.listener.get()) {
             this.listener.get().onZLG600AConnected();
         }
     }
 
     @Override
-    public void onException(PWSerialPortHelper helper) {
+    public void onReadThreadReleased(PWSerialPortHelper helper) {
+        if (null != this.listener && null != this.listener.get()) {
+            this.listener.get().onZLG600APrint("ZLG600ASerialPort read thread released");
+        }
+    }
+
+    @Override
+    public void onException(PWSerialPortHelper helper, Throwable throwable) {
         if (!this.isInitialized() || !helper.equals(this.helper)) {
             return;
         }
         this.ready = false;
-        if (EmptyUtils.isNotEmpty(this.listener)) {
-            this.listener.get().onZLG600AException();
+        if (null != this.listener && null != this.listener.get()) {
+            this.listener.get().onZLG600AException(throwable);
         }
+        if(this.enabled){
+            if (null != this.listener && null != this.listener.get()) {
+                this.listener.get().onZLG600AReset();
+            }
+        }
+    }
 
-        if(this.enabled && EmptyUtils.isNotEmpty(this.listener)){
-            this.listener.get().onZLG600AReset();
+    @Override
+    public void onStateChanged(PWSerialPortHelper helper, PWSerialPortState state) {
+        if (null != this.listener && null != this.listener.get()) {
+            this.listener.get().onZLG600APrint("ZLG600ASerialPort state changed: " + state.name());
         }
     }
 
@@ -172,13 +186,13 @@ public class ZLG600ASerialPort implements PWSerialPortListener {
             byte mark = this.buffer.readByte();
             if (mark == 0x06) {
                 this.ready = true;
-                if (EmptyUtils.isNotEmpty(this.listener)) {
-                    this.listener.get().onZLG600AReady();
-                }
                 if (this.buffer.readableBytes() == 0) {
                     this.buffer.discardReadBytes();
                 } else {
                     this.buffer.resetReaderIndex();
+                }
+                if (null != this.listener && null != this.listener.get()) {
+                    this.listener.get().onZLG600AReady();
                 }
             }
         }
@@ -194,7 +208,9 @@ public class ZLG600ASerialPort implements PWSerialPortListener {
             if (!ZLG600ATools.checkFrame(data)) {
                 return;
             }
-            PWLogger.d("ZLG600A Recv:" + ByteUtils.bytes2HexString(data, true, ", "));
+            if (null != this.listener && null != this.listener.get()) {
+                this.listener.get().onZLG600APrint("ZLG600ASerialPort Recv:" + ZLG600ATools.bytes2HexString(data, true, ", "));
+            }
             this.parseRFIDPackage();
             this.handler.sendEmptyMessageDelayed(1, 1000);
         }
@@ -227,15 +243,14 @@ public class ZLG600ASerialPort implements PWSerialPortListener {
             this.buffer.discardReadBytes();
             return;
         }
-
         byte[] data = new byte[8];
         this.buffer.readBytes(data, 0, length > 8 ? 8 : length);
 
-        long id = ByteUtils.bytes2Long(data, ByteOrder.LITTLE_ENDIAN);
-        String card = ByteUtils.bytes2HexString(data, 0, length);
+        long id = ZLG600ATools.bytes2Long(data, ByteOrder.LITTLE_ENDIAN);
+        String card = ZLG600ATools.bytes2HexString(data, 0, length);
         this.buffer.skipBytes(2);
         this.buffer.discardReadBytes();
-        if (EmptyUtils.isNotEmpty(this.listener)) {
+        if (null != this.listener && null != this.listener.get()) {
             this.listener.get().onZLG600ARecognized(id, card);
         }
     }
