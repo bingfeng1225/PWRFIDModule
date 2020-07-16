@@ -218,6 +218,13 @@ class ZLG600ASerialPort implements PWSerialPortListener {
                 this.listener.get().onZLG600APrint("ZLG600ASerialPort Recv:" + ZLG600ATools.bytes2HexString(data, true, ", "));
             }
             this.parseRFIDPackage();
+            this.postRecognize();
+        }
+    }
+
+    private void postRecognize() {
+        if(null != this.handler) {
+            this.handler.removeMessages(1);
             this.handler.sendEmptyMessageDelayed(1, 1000);
         }
     }
@@ -275,7 +282,7 @@ class ZLG600ASerialPort implements PWSerialPortListener {
                     if (times < 2) {
                         sendEmptyMessageDelayed(0, 1);
                     } else {
-                        sendEmptyMessageDelayed(1, 1000);
+                        ZLG600ASerialPort.this.postRecognize();
                     }
                     write(ZLG600ATools.RFID_COMMAND_UART);
                     break;
