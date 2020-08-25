@@ -77,7 +77,7 @@ class ZLG600ASerialPort implements PWSerialPortListener {
     private void createHelper(String path) {
         if (this.helper == null) {
             this.helper = new PWSerialPortHelper("ZLG600ASerialPort");
-            this.helper.setTimeout(2);
+            this.helper.setTimeout(4);
             this.helper.setPath(path);
             this.helper.setBaudrate(19200);
             this.helper.init(this);
