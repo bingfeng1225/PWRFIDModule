@@ -21,7 +21,6 @@ class ZLG600ASerialPort implements PWSerialPortListener {
     private HandlerThread thread;
     private PWSerialPortHelper helper;
 
-    //    private int times = 0;
     private boolean ready = false;
     private boolean enabled = false;
     private WeakReference<IZLG600AListener> listener;
@@ -212,12 +211,18 @@ class ZLG600ASerialPort implements PWSerialPortListener {
             this.buffer.readBytes(data, 0, len);
             this.buffer.resetReaderIndex();
             if (!ZLG600ATools.checkFrame(data)) {
-                return;
+                byte[] abbond = new byte[this.buffer.readableBytes()];
+                this.buffer.readBytes(abbond, 0, abbond.length);
+                this.buffer.discardReadBytes();
+                if (null != this.listener && null != this.listener.get()) {
+                    this.listener.get().onZLG600APrint("ZLG600ASerialPort abbond:" + ZLG600ATools.bytes2HexString(abbond, true, ", "));
+                }
+            } else {
+                if (null != this.listener && null != this.listener.get()) {
+                    this.listener.get().onZLG600APrint("ZLG600ASerialPort Recv:" + ZLG600ATools.bytes2HexString(data, true, ", "));
+                }
+                this.parseRFIDPackage();
             }
-            if (null != this.listener && null != this.listener.get()) {
-                this.listener.get().onZLG600APrint("ZLG600ASerialPort Recv:" + ZLG600ATools.bytes2HexString(data, true, ", "));
-            }
-            this.parseRFIDPackage();
             this.postRecognize();
         }
     }
@@ -278,11 +283,6 @@ class ZLG600ASerialPort implements PWSerialPortListener {
             super.handleMessage(msg);
             switch (msg.what) {
                 case 0:
-//                    times++;
-//                    if (times < 2) {
-//                        sendEmptyMessageDelayed(0, 1);
-//                    } else {
-//            }
                     ZLG600ASerialPort.this.write(ZLG600ATools.RFID_COMMAND_UART);
                     ZLG600ASerialPort.this.write(ZLG600ATools.RFID_COMMAND_UART);
                     ZLG600ASerialPort.this.postRecognize();
