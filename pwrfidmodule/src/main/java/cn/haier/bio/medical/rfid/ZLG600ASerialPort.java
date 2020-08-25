@@ -21,7 +21,7 @@ class ZLG600ASerialPort implements PWSerialPortListener {
     private HandlerThread thread;
     private PWSerialPortHelper helper;
 
-    private int times = 0;
+    //    private int times = 0;
     private boolean ready = false;
     private boolean enabled = false;
     private WeakReference<IZLG600AListener> listener;
@@ -125,7 +125,7 @@ class ZLG600ASerialPort implements PWSerialPortListener {
         if (!this.isInitialized() || !this.enabled) {
             return;
         }
-        this.helper.write(data);
+        this.helper.writeAndFlush(data);
         if (null != this.listener && null != this.listener.get()) {
             this.listener.get().onZLG600APrint("ZLG600ASerialPort Send:" + ZLG600ATools.bytes2HexString(data, true, ", "));
         }
@@ -136,7 +136,7 @@ class ZLG600ASerialPort implements PWSerialPortListener {
         if (!this.isInitialized() || !helper.equals(this.helper)) {
             return;
         }
-        this.times = 0;
+//        this.times = 0;
         this.ready = false;
         this.buffer.clear();
         this.handler.sendEmptyMessage(0);
@@ -164,7 +164,7 @@ class ZLG600ASerialPort implements PWSerialPortListener {
         if (null != this.listener && null != this.listener.get()) {
             this.listener.get().onZLG600AException(throwable);
         }
-        if(this.enabled){
+        if (this.enabled) {
             if (null != this.listener && null != this.listener.get()) {
                 this.listener.get().onZLG600AReset();
             }
@@ -223,7 +223,7 @@ class ZLG600ASerialPort implements PWSerialPortListener {
     }
 
     private void postRecognize() {
-        if(null != this.handler) {
+        if (null != this.handler) {
             this.handler.removeMessages(1);
             this.handler.sendEmptyMessageDelayed(1, 1000);
         }
@@ -278,16 +278,17 @@ class ZLG600ASerialPort implements PWSerialPortListener {
             super.handleMessage(msg);
             switch (msg.what) {
                 case 0:
-                    times++;
-                    if (times < 2) {
-                        sendEmptyMessageDelayed(0, 1);
-                    } else {
-                        ZLG600ASerialPort.this.postRecognize();
-                    }
-                    write(ZLG600ATools.RFID_COMMAND_UART);
+//                    times++;
+//                    if (times < 2) {
+//                        sendEmptyMessageDelayed(0, 1);
+//                    } else {
+//            }
+                    ZLG600ASerialPort.this.write(ZLG600ATools.RFID_COMMAND_UART);
+                    ZLG600ASerialPort.this.write(ZLG600ATools.RFID_COMMAND_UART);
+                    ZLG600ASerialPort.this.postRecognize();
                     break;
                 case 1:
-                    write(ZLG600ATools.RFID_COMMAND_READ);
+                    ZLG600ASerialPort.this.write(ZLG600ATools.RFID_COMMAND_READ);
                     break;
             }
         }
