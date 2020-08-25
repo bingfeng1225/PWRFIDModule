@@ -124,7 +124,7 @@ class ZLG600ASerialPort implements PWSerialPortListener {
         if (!this.isInitialized() || !this.enabled) {
             return;
         }
-        this.helper.write(data);
+        this.helper.writeAndFlush(data);
         if (null != this.listener && null != this.listener.get()) {
             this.listener.get().onZLG600APrint("ZLG600ASerialPort Send:" + ZLG600ATools.bytes2HexString(data, true, ", "));
         }
