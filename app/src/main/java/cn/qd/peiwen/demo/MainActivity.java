@@ -45,6 +45,11 @@ public class MainActivity extends AppCompatActivity implements IZLG600AListener 
     }
 
     @Override
+    public void onZLG600ADisconnected() {
+        PWLogger.debug("ZLG600ASerialPort disconnected");
+    }
+
+    @Override
     public void onZLG600APrint(String msg) {
         PWLogger.debug("" + msg);
     }
