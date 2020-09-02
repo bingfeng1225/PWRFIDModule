@@ -135,7 +135,6 @@ class ZLG600ASerialPort implements PWSerialPortListener {
         if (!this.isInitialized() || !helper.equals(this.helper)) {
             return;
         }
-//        this.times = 0;
         this.ready = false;
         this.buffer.clear();
         this.handler.sendEmptyMessage(0);
@@ -150,6 +149,7 @@ class ZLG600ASerialPort implements PWSerialPortListener {
             return;
         }
         if (null != this.listener && null != this.listener.get()) {
+            this.listener.get().onZLG600ADisconnected();
             this.listener.get().onZLG600APrint("ZLG600ASerialPort read thread released");
         }
     }
@@ -201,7 +201,7 @@ class ZLG600ASerialPort implements PWSerialPortListener {
                 }
             }
         }
-        if (this.buffer.readableBytes() > 0) {
+        while (this.buffer.readableBytes() > 0) {
             int len = this.buffer.getByte(0);
             if (this.buffer.readableBytes() < len) {
                 return;
