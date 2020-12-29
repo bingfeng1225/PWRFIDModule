@@ -181,9 +181,9 @@ class ZLG600ASerialPort implements PWSerialPortListener {
     }
 
     @Override
-    public void onByteReceived(PWSerialPortHelper helper, byte[] buffer, int length) throws IOException {
+    public boolean onByteReceived(PWSerialPortHelper helper, byte[] buffer, int length) throws IOException {
         if (!this.isInitialized() || !helper.equals(this.helper)) {
-            return;
+            return false;
         }
         this.buffer.writeBytes(buffer, 0, length);
         if (!this.ready) {
@@ -204,7 +204,7 @@ class ZLG600ASerialPort implements PWSerialPortListener {
         while (this.buffer.readableBytes() > 0) {
             int len = this.buffer.getByte(0);
             if (this.buffer.readableBytes() < len) {
-                return;
+                return true;
             }
             this.buffer.markReaderIndex();
             byte[] data = new byte[len];
@@ -225,6 +225,7 @@ class ZLG600ASerialPort implements PWSerialPortListener {
             }
             this.postRecognize();
         }
+        return true;
     }
 
     private void postRecognize() {
